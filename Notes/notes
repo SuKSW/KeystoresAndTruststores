@@ -1,0 +1,41 @@
+kubectl config view
+
+-------------------------------------------------------------------------------------------------
+
+lets print out result for fun
+
+	openssl pkcs12 -passin "pass:passpkcs12" -passout "pass:passpkcs12" -in tempPKCS12FILE -info
+
+-------------------------------------------------------------------------------------------------
+
+The keystore used for SSL must contain the same password for the Keystore and private key due to a Tomcat limitation
+
+-------------------------------------------------- for test 4-----------------------------------------
+
+openssl pkcs12 -export -passout "pass:passpkcs12" -name myservercert -in apiserver.crt -inkey apiserver.key -out keystore.p12
+
+keytool -importkeystore \
+   -deststorepass  "kube_conn_keystore_pass" \
+   -destkeypass    "kube_conn_keystore_pass" \
+   -destkeystore   "kube_conn_keystore" \
+   -srckeystore    "keystore.p12" \
+   -srcstoretype  PKCS12 \
+   -srcstorepass  "passpkcs12"
+
+keytool -import -keystore kube_conn_truststore -file ca.crt
+password = kube_conn_truststore_pass
+
+-------------------------------------------------- example methods --------------------------------------------
+
+openssl pkcs12 -export -in [path to certificate] -inkey [path to private key] -certfile [path to certificate ] -out testkeystore.p12
+
+keytool -importkeystore -srckeystore testkeystore.p12 -srcstoretype pkcs12 -destkeystore wso2carbon.jks -deststoretype JKS
+
+---------------------------------------------------------------------------------------------------------------
+
+# Create PKCS12 keystore from private key and public certificate.
+openssl pkcs12 -export -name myservercert -in selfsigned.crt -inkey server.key -out keystore.p12
+
+# Convert PKCS12 keystore into a JKS keystore
+keytool -importkeystore -destkeystore mykeystore.jks -srckeystore keystore.p12 -srcstoretype pkcs12 -alias myservercert
+
